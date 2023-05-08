@@ -3,30 +3,40 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class ClickHandler : MonoBehaviour
 {
     
     int CurrentPlayerId =  1;
-    //GameObject[] Tiles;
+    public Text WinningPlayer;
+    public Canvas WinMenu;
+    public Canvas TieMenu;
+
     Cube[] Cubes;
 
     List<String> TileStates;
 
-    bool GameOver = false;
+    bool GameOver = true;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
+        // Set Up Menus
+        WinMenu.enabled = false;
+        TieMenu.enabled = false;
+        GameOver = false;
+        
         Cubes = FindObjectsOfType<Cube>();
-        //print(Cubes.Length);
 
         TileStates = new List<string>();
         
         foreach (Cube cube in Cubes)
         {
-            //print(cube.TileState.ToString());
             TileStates.Add(cube.TileState.ToString());
         }
     }
@@ -50,15 +60,21 @@ public class ClickHandler : MonoBehaviour
         }
     }
     
-    public string GetCurrentPlayerID()
+    public void StartNewGame()
     {
-        return "Player " + CurrentPlayerId + "'s Turn";
+        SceneManager.LoadScene(1);
+    }
+
+    public void ReturnToMenu()
+    {
+        SceneManager.LoadScene(0);
     }
 
     public void BoardCheck()
     {
         // Check if the current player has won
         CheckWinConditions();
+        if (GameOver) return;
 
         // If all of the tiles are selected, then it is a tie
         CheckForTie();
@@ -80,16 +96,13 @@ public class ClickHandler : MonoBehaviour
         }
 
         GameOver = true;
-        print("It's a tie");
+        TieMenu.enabled = true;
     }
 
     void PassTurn()
     {
         // Switch Players
-        if (CurrentPlayerId == 1) {CurrentPlayerId = 2;}else{CurrentPlayerId = 1;}
-        
-        //print(GetCurrentPlayerID());
-        
+        if (CurrentPlayerId == 1) {CurrentPlayerId = 2;}else{CurrentPlayerId = 1;}      
     }
 
     void CheckWinConditions()
@@ -139,7 +152,8 @@ public class ClickHandler : MonoBehaviour
                                 if (cube1.TileState == cube2.TileState && cube2.TileState == cube3.TileState)
                                 {
                                     // If all three cubes have the same symbol, then the player wins
-                                    print("Player " + CurrentPlayerId + " Wins!");
+                                    WinningPlayer.text = "Player " + CurrentPlayerId + " Wins!";
+                                    WinMenu.enabled = true;
                                     GameOver = true;
                                 }
                             }
